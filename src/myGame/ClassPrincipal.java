@@ -92,18 +92,27 @@ public class ClassPrincipal extends JPanel implements Runnable, KeyListener {
 	public void run() {
 
 		while (play) {
-
+  long startTime = System.currentTimeMillis();
 			atualizar();
 			// Para renderizar as imagens continuamente colocando o metodo paintComponent em
 			// loop
 			repaint();
 			FPS();
+			
+ long finalTime	= System.currentTimeMillis();	
+ 
+ 
+	long FPS = 1000/(finalTime -startTime);
+  System.out.println("FPS: "+FPS);
+ 
+ 
 		}
 	}
 
 	boolean up = false;
 	boolean down = false;
-	
+
+  
 
 	public void atualizar() {
 		// Aqui trataremos dos movimentos
@@ -119,28 +128,7 @@ public class ClassPrincipal extends JPanel implements Runnable, KeyListener {
 
 	}
 
-	/*
-	 * String answer; public void playAgain() {
-	 * 
-	 * Scanner reader = new Scanner(System.in); answer = reader.next();
-	 * 
-	 * if(lives == 0) { play = false;
-	 * System.out.println("Do you want to play again ? (answer with yes or no)");
-	 * 
-	 * if(answer.equalsIgnoreCase("yes")) {
-	 * 
-	 * lives =3; play=true;
-	 * 
-	 * } else if (answer.equalsIgnoreCase("no")) {
-	 * System.out.println("O jogo acabou"); play = false; }
-	 * 
-	 * 
-	 * 
-	 * 
-	 * }
-	 * 
-	 * }
-	 */
+	
       public void playerColision(){
     	  
     	  if(posYPlayer<= 0)
@@ -164,7 +152,9 @@ public class ClassPrincipal extends JPanel implements Runnable, KeyListener {
               	 score =0;
               	 BallspeedX = 5;
               	 BallspeedY = 5;
-              	 Playerspeed = 4;
+              	 Playerspeed = 3;
+              	 up =false;
+              	 down = false;
             			 }
                  
             else if(resposta == JOptionPane.NO_OPTION)
@@ -194,7 +184,7 @@ public class ClassPrincipal extends JPanel implements Runnable, KeyListener {
 	int BallspeedX = 5;
 	int BallspeedY = 5;
 
-	int Playerspeed = 4;
+	int Playerspeed = 3;
 
 	public void movimentation() {
 
@@ -336,6 +326,8 @@ public class ClassPrincipal extends JPanel implements Runnable, KeyListener {
 		g.setColor(Color.BLUE);
 
 		g.drawString("Placar: " + score+ " ponto(s)", width-130,40 );
+		
+
 		
 	}
 
