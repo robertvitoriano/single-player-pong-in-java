@@ -11,10 +11,17 @@ import java.io.IOException;
 import java.util.Random;
 
 import javax.imageio.ImageIO;
+import javax.naming.InitialContext;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
+import javax.sound.sampled.LineUnavailableException;
+import javax.sound.sampled.spi.AudioFileReader;
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import java.util.Scanner;
+
 
 
 public class ClassPrincipal extends JPanel implements Runnable, KeyListener {
@@ -45,8 +52,13 @@ public class ClassPrincipal extends JPanel implements Runnable, KeyListener {
 
 	}
 	int lives = 5;
-	 private BufferedImage background;
+	int initialLives = 5;
+	 BufferedImage background;
 	 BufferedImage livesIco;
+	 File hitPlayer = new File("hitPlayer.WAV");
+	 int speedup =0;
+	 
+	
 
 	public ClassPrincipal() {
 		
@@ -69,9 +81,12 @@ public class ClassPrincipal extends JPanel implements Runnable, KeyListener {
 
 		Thread thread = new Thread(this);
 		thread.start();
+		
+		 
 
 	}
-
+	
+	// MÉTODO PARA LEITURA DE AUDIO
 	boolean play = true;
 
 	public void run() {
@@ -97,7 +112,10 @@ public class ClassPrincipal extends JPanel implements Runnable, KeyListener {
 		colisoesBolaJogador();
 		movimentation();
 		touchWall();
-		playerColision();
+		playerColision();	
+		GameOver();
+	
+		
 
 	}
 
@@ -134,30 +152,43 @@ public class ClassPrincipal extends JPanel implements Runnable, KeyListener {
 	int taxBall = 2;
 	int taxPlayer = 1;
 	
-
+   public void GameOver() {
+		if(lives<1) {
+			int resposta =JOptionPane.showConfirmDialog(this, "Você perdeu!!, Gostaria de jogar novamente");
+            if(resposta == JOptionPane.OK_OPTION) {
+            	lives = initialLives;
+              	 posYBola = 190;
+              	 posXBola = 450;
+              	 posXPlayer = 50;
+              	 posYPlayer = 140;
+              	 score =0;
+              	 BallspeedX = 5;
+              	 BallspeedY = 5;
+              	 Playerspeed = 4;
+            			 }
+                 
+            else if(resposta == JOptionPane.NO_OPTION)
+            	System.exit(lives);
+            
+		}
+	   
+   }
 	public void touchWall() {
 
 		if (posXBola <= 0) {
-
+			
+		
 			lives -= 1;
-			posYBola = aleatorio.nextInt(400);
+			posYBola = aleatorio.nextInt(400) + 30;
 			posXBola = aleatorio.nextInt(250) + 200;
-			Playerspeed+= taxPlayer;
-              
-				if(BallspeedY<=0)
-				BallspeedY -= taxBall;
-			   else
-			   BallspeedY +=taxBall;
-	
-
-			   if(BallspeedX<=0)
-			   BallspeedX -= taxBall;
-			  else
-			  BallspeedX +=taxBall;
-			   
-			  
+			
+			
+			
+		
 
 		}
+		
+		
 	}
 
 	int BallspeedX = 5;
@@ -180,23 +211,42 @@ public class ClassPrincipal extends JPanel implements Runnable, KeyListener {
 
 	}
 	int score = 0;
+	
 	public void colisoesBolaJogador() {
 
 		if (posXBola <= posXPlayer + tamPlayerX) {
 
 			// Segundo if , agora referente ao eixo Y, ele precisa estar dentro de x
 			// pois as 2 condiï¿½ï¿½es devem ser atendidas
+			
+			
 
 			if (posYBola >= posYPlayer && posYBola <= posYPlayer + tamPlayerY) {
 
 				BallspeedX *= -1;
 				BallspeedY *= -1;
 				score++;
+				Playerspeed+= taxPlayer;
+				
+				if(score%2==0) {
+	             
+				if(BallspeedY<=0)
+				BallspeedY -= taxBall;
+			   else
+			   BallspeedY +=taxBall;
+	
+
+			   if(BallspeedX<=0)
+			   BallspeedX -= taxBall;
+			  else
+			  BallspeedX +=taxBall;
+				}
+				}
 			}
 
 		}
 
-	}
+	
 
 	int BallSpeedAbsoluteY;
 	int BallSpeedAbsoluteX;
@@ -208,6 +258,7 @@ public class ClassPrincipal extends JPanel implements Runnable, KeyListener {
 		if (posXBola >= width - 25 || posXBola <= 0) {
 
 			BallspeedX *= -1;
+			
 
 		}
 
@@ -226,6 +277,8 @@ public class ClassPrincipal extends JPanel implements Runnable, KeyListener {
 			BallSpeedAbsoluteY = BallspeedY;
 
 	}
+	
+	
 
 	public void FPS() {
 
@@ -260,26 +313,29 @@ public class ClassPrincipal extends JPanel implements Runnable, KeyListener {
         //Ball
 		g.setColor(Color.RED);
 		g.fillOval(posXBola, posYBola, tamBola, tamBola);
-		  //LIVES
-		g.drawImage(livesIco,100,23,25,25,null);
+		
+		
+		//LIVES
+		for (int i = 0; i<= lives-1;i++) {
+		 
+			g.drawImage(livesIco,60+25*i,23,25,25,null);
+		}
+		
 		g.setColor(Color.BLUE);
-		g.drawString("você tem:  " + lives, 20, 40);
+		g.drawString("Vidas:  ", 20, 40);
 		g.setColor(Color.RED);
 
-		g.drawString("velocidade da bola em Y: " + BallSpeedAbsoluteY + " pixels", 430, 360);
+		g.drawString("velocidade da bola em Y: " + BallSpeedAbsoluteY + " pixel(s)", width-240, 360);
 		g.setColor(Color.RED);
 
-		g.drawString("velocidade da bola em X: " + BallSpeedAbsoluteX + " pixels", 430, 380);
+		g.drawString("velocidade da bola em X: " + BallSpeedAbsoluteX + " pixel(s)", width-240, 380);
 		g.setColor(Color.BLUE);
 
-		g.drawString("velocidade do Jogador: " + Playerspeed + " pixels", 20, 380);
+		g.drawString("velocidade do Jogador: " + Playerspeed + " pixel(s)", 20, 380);
 		
 		g.setColor(Color.BLUE);
 
-		g.drawString("Placar: " + score+ " ponto(s)", width-114,40 );
-		
-
-	
+		g.drawString("Placar: " + score+ " ponto(s)", width-130,40 );
 		
 	}
 
