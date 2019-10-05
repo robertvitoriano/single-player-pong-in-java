@@ -1,36 +1,50 @@
 package myGame;
 
+import java.applet.Applet;
+import java.applet.AudioClip;
 import java.awt.Color;
 
 import java.awt.Graphics;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.image.BufferedImage;
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
+
 import java.util.Random;
 
 import javax.imageio.ImageIO;
 import javax.naming.InitialContext;
+import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
 import javax.sound.sampled.LineUnavailableException;
+import javax.sound.sampled.UnsupportedAudioFileException;
 import javax.sound.sampled.spi.AudioFileReader;
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+
+
+
 import java.util.Scanner;
 
 
 
 public class ClassPrincipal extends JPanel implements Runnable, KeyListener {
 	
+	
 	static int width = 640;
     static int height = 480;
-	public static void main(String[] args) {
+	private static Object sound;
+	public static void main(String[] args) throws Exception {
 
-		JFrame tela = new JFrame();
+		JFrame tela = new JFrame("                                                      Single Player Pong - by Robert Vitoriano");
          
 		tela.setSize(width, height);
 		tela.setVisible(true);
@@ -49,18 +63,28 @@ public class ClassPrincipal extends JPanel implements Runnable, KeyListener {
 		tela.setResizable(true);
 
 		tela.addKeyListener(canvas);
-
+   
+		
 	}
+	
+	
 	int lives = 5;
 	int initialLives = 5;
 	 BufferedImage background;
 	 BufferedImage livesIco;
-	 File hitPlayer = new File("hitPlayer.WAV");
+	 int bestScore;
 	 int speedup =0;
 	 
 	
 
-	public ClassPrincipal() {
+	public ClassPrincipal() throws Exception   {
+		BufferedReader reader;
+
+		reader = new BufferedReader(new FileReader("bestScore.txt"));
+		String FileContent = reader.readLine();
+	   bestScore = Integer.parseInt(FileContent);
+	
+		reader.close();	   
 		
 		try {
 			background = ImageIO.read(new File("background_18.png"));
@@ -82,20 +106,24 @@ public class ClassPrincipal extends JPanel implements Runnable, KeyListener {
 		Thread thread = new Thread(this);
 		thread.start();
 		
-		 
+		//Pegando URL
+		
+	
+		
+		
+	
 
 	}
 	
-	// MÉTODO PARA LEITURA DE AUDIO
-	boolean play = true;
+	
+	boolean pause = false;
 
 	public void run() {
 
-		while (play) {
-  long startTime = System.currentTimeMillis();
+		while (true) {
+	if(pause==false) {		
+       long startTime = System.currentTimeMillis();
 			atualizar();
-			// Para renderizar as imagens continuamente colocando o metodo paintComponent em
-			// loop
 			repaint();
 			FPS();
 			
@@ -104,10 +132,16 @@ public class ClassPrincipal extends JPanel implements Runnable, KeyListener {
  
 	long FPS = 1000/(finalTime -startTime);
   System.out.println("FPS: "+FPS);
+  System.out.println("Rodando");
+
  
  
 		}
+	else
+		  System.out.println("Pausado");
 	}
+	
+}
 
 	boolean up = false;
 	boolean down = false;
@@ -123,12 +157,26 @@ public class ClassPrincipal extends JPanel implements Runnable, KeyListener {
 		touchWall();
 		playerColision();	
 		GameOver();
+
 	
 		
 
 	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 
 	
+	
+	
+
       public void playerColision(){
     	  
     	  if(posYPlayer<= 0)
@@ -139,10 +187,37 @@ public class ClassPrincipal extends JPanel implements Runnable, KeyListener {
 	Random aleatorio = new Random();
 	int taxBall = 2;
 	int taxPlayer = 1;
-	
    public void GameOver() {
 		if(lives<1) {
-			int resposta =JOptionPane.showConfirmDialog(this, "Você perdeu!!, Gostaria de jogar novamente");
+			
+			if(score>bestScore) {
+				
+				FileWriter writer;
+				try {
+					writer = new FileWriter("bestScore.txt");
+					writer.write(""+ score);
+					writer.close();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				
+			}
+			int resposta;
+			int lastScore = bestScore;
+			if(score < lastScore) { resposta =JOptionPane.showConfirmDialog(this,"Você perdeu!!"
+					+ "Você fez "+score +" pontos "
+					+ "e a "
+					+ "melhor pontuação até agora foi "+lastScore+ " pontos. "
+					+ "  Gostaria de jogar novamente");
+			
+			}
+			else { resposta =JOptionPane.showConfirmDialog(this,"Você perdeu, mas está de parabéns."
+					+ "Você fez "+score +" pontos "
+					+ "e a "
+					+ "melhor pontuação até agora tinha si "+lastScore+ " pontos."
+					+ "  Gostaria de jogar novamente");
+		}
             if(resposta == JOptionPane.OK_OPTION) {
             	lives = initialLives;
               	 posYBola = 190;
@@ -184,7 +259,7 @@ public class ClassPrincipal extends JPanel implements Runnable, KeyListener {
 	int BallspeedX = 5;
 	int BallspeedY = 5;
 
-	int Playerspeed = 3;
+	int Playerspeed = 4;
 
 	public void movimentation() {
 
@@ -201,7 +276,6 @@ public class ClassPrincipal extends JPanel implements Runnable, KeyListener {
 
 	}
 	int score = 0;
-	
 	public void colisoesBolaJogador() {
 
 		if (posXBola <= posXPlayer + tamPlayerX) {
@@ -212,11 +286,16 @@ public class ClassPrincipal extends JPanel implements Runnable, KeyListener {
 			
 
 			if (posYBola >= posYPlayer && posYBola <= posYPlayer + tamPlayerY) {
+				if(bestScore <score)
+				bestScore = score;
 
 				BallspeedX *= -1;
 				BallspeedY *= -1;
 				score++;
 				Playerspeed+= taxPlayer;
+				
+		
+				
 				
 				if(score%2==0) {
 	             
@@ -285,7 +364,7 @@ public class ClassPrincipal extends JPanel implements Runnable, KeyListener {
 	int tamPlayerY = 60;
 	int posYBola = 190;
 	int posXBola = 450;
-	int posXPlayer = 50;
+	int posXPlayer = 10;
 	int posYPlayer = 140;
 
 	public void paintComponent(Graphics g) {
@@ -315,22 +394,33 @@ public class ClassPrincipal extends JPanel implements Runnable, KeyListener {
 		g.drawString("Vidas:  ", 20, 40);
 		g.setColor(Color.RED);
 
-		g.drawString("velocidade da bola em Y: " + BallSpeedAbsoluteY + " pixel(s)", width-240, 360);
-		g.setColor(Color.RED);
+//		g.drawString("velocidade da bola em Y: " + BallSpeedAbsoluteY + " pixel(s)", width-240, 360);
+//		g.setColor(Color.RED);
 
-		g.drawString("velocidade da bola em X: " + BallSpeedAbsoluteX + " pixel(s)", width-240, 380);
-		g.setColor(Color.BLUE);
+//		g.drawString("velocidade da bola em X: " + BallSpeedAbsoluteX + " pixel(s)", width-240, 380);
+//		g.setColor(Color.BLUE);
 
-		g.drawString("velocidade do Jogador: " + Playerspeed + " pixel(s)", 20, 380);
+//		g.drawString("velocidade do Jogador: " + Playerspeed + " pixel(s)", 20, 380);
 		
 		g.setColor(Color.BLUE);
 
-		g.drawString("Placar: " + score+ " ponto(s)", width-130,40 );
+		g.drawString("Placar: " + score+ " ponto(s)", width-185,40 );
+		if(bestScore > score) {
+		g.drawString("Melhor Pontuação: "+ bestScore+" pontos",width-185, 80);
+		}
 		
+		else
+			g.drawString("Melhor Pontuação: "+ score+" pontos",width-185, 80);
+		if(pause==true) {
+			g.setColor(Color.BLACK);
+			g.drawString("Aperte espaço para voltar", 200, 200);
+		}
+		
+
 
 		
 	}
-
+	
 	@Override
 	public void keyTyped(KeyEvent e) {
 		// TODO Auto-generated method stub
@@ -342,10 +432,16 @@ public class ClassPrincipal extends JPanel implements Runnable, KeyListener {
 
 		if (e.getKeyCode() == KeyEvent.VK_UP)
 			up = true;
-		if (e.getKeyCode() == KeyEvent.VK_DOWN)
+		if (e.getKeyCode() == KeyEvent.VK_DOWN) {
 			down = true;
-
 	}
+		if (e.getKeyCode()== KeyEvent.VK_SPACE) {		
+			pause = !pause;
+			}
+					
+		}
+
+	
 
 	@Override
 	public void keyReleased(KeyEvent e) {
@@ -355,6 +451,7 @@ public class ClassPrincipal extends JPanel implements Runnable, KeyListener {
 
 		if (e.getKeyCode() == KeyEvent.VK_DOWN)
 			down = false;
+		
 
 	}
 
