@@ -162,21 +162,6 @@ public class ClassPrincipal extends JPanel implements Runnable, KeyListener {
 		
 
 	}
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-
-	
-	
-	
-
       public void playerColision(){
     	  
     	  if(posYPlayer<= 0)
@@ -297,7 +282,7 @@ public class ClassPrincipal extends JPanel implements Runnable, KeyListener {
 		
 				
 				
-				if(score%2==0) {
+				if(score%4==0) {
 	             
 				if(BallspeedY<=0)
 				BallspeedY -= taxBall;
