@@ -85,6 +85,15 @@ public class ClassPrincipal extends JPanel implements Runnable, KeyListener {
     }
 
     public void run() {
+        // try {
+        //     playSound("music1.wav");
+        // } catch (IOException e1) {
+        //     // TODO Auto-generated catch block
+        //     e1.printStackTrace();
+        // } catch (Exception e1) {
+        //     // TODO Auto-generated catch block
+        //     e1.printStackTrace();
+        // }
         while (true) {
             if (pause == false) {
                 long startTime = System.currentTimeMillis();
@@ -119,6 +128,15 @@ public class ClassPrincipal extends JPanel implements Runnable, KeyListener {
 
     public void GameOver() {
         if (lives < 1) {
+            try {
+                playSound("loseSound.wav");
+            } catch (IOException e1) {
+                // TODO Auto-generated catch block
+                e1.printStackTrace();
+            } catch (Exception e1) {
+                // TODO Auto-generated catch block
+                e1.printStackTrace();
+            }
             if (score > bestScore) {
                 FileWriter writer;
                 try {
@@ -203,6 +221,15 @@ public class ClassPrincipal extends JPanel implements Runnable, KeyListener {
                     bestScore = score;
                 BallspeedX *= -1;
                 BallspeedY *= -1;
+                try {
+                    playSound("hitBallSound.wav");
+                } catch (IOException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                } catch (Exception e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
                 score++;
                 player.setPlayerspeed(player.getPlayerspeed() + player.getPlayerSpeedRate());
                 if (score % 4 == 0) {
