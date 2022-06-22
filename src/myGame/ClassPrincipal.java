@@ -1,4 +1,5 @@
 package myGame;
+
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.event.KeyEvent;
@@ -17,6 +18,7 @@ import javax.sound.sampled.Clip;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+
 public class ClassPrincipal extends JPanel implements Runnable, KeyListener {
     static int width = 640;
     static int height = 480;
@@ -27,27 +29,22 @@ public class ClassPrincipal extends JPanel implements Runnable, KeyListener {
     int bestScore;
     int speedup = 0;
     boolean pause = false;
-    boolean up = false;
-    boolean down = false;
     Random randomNumber = new Random();
     int ballSpeedRate = 2;
     int playerSpeedRate = 1;
     int BallspeedX = 5;
     int BallspeedY = 5;
-    int Playerspeed = 4;
     int score = 0;
     int BallSpeedAbsoluteY;
     int BallSpeedAbsoluteX;
     int ballSize = 10;
-    int playerWidth = 10;
-    int playerHeight = 60;
     int ballYPosition = 190;
     int ballXPosition = 450;
-    int playerXPosition = 10;
-    int playerYPosition = 140;
+    Player player = new Player();
 
     public static void main(String[] args) throws Exception {
-        JFrame screen = new JFrame("                                                      Single Player Pong - by Robert Vitoriano");
+        JFrame screen = new JFrame(
+                "                                                      Single Player Pong - by Robert Vitoriano");
         screen.setSize(width, height);
         screen.setVisible(true);
         screen.setLocationRelativeTo(null);
@@ -63,6 +60,7 @@ public class ClassPrincipal extends JPanel implements Runnable, KeyListener {
         screen.setResizable(true);
         screen.addKeyListener(canvas);
     }
+
     public ClassPrincipal() throws Exception {
         BufferedReader reader;
         reader = new BufferedReader(new FileReader("bestScore.txt"));
@@ -73,7 +71,7 @@ public class ClassPrincipal extends JPanel implements Runnable, KeyListener {
             background = ImageIO.read(new File("background_18.png"));
         } catch (IOException e) {
             e.printStackTrace();
-            //			
+            //
         }
         try {
             livesIco = ImageIO.read(new File("heart-icon.png"));
@@ -83,8 +81,9 @@ public class ClassPrincipal extends JPanel implements Runnable, KeyListener {
         }
         Thread thread = new Thread(this);
         thread.start();
-        //Pegando URL
+        // Pegando URL
     }
+
     public void run() {
         while (true) {
             if (pause == false) {
@@ -100,6 +99,7 @@ public class ClassPrincipal extends JPanel implements Runnable, KeyListener {
                 System.out.println("Pausado");
         }
     }
+
     public void updateGame() {
         // Aqui trataremos dos movimentos
         ballCollisions();
@@ -109,11 +109,12 @@ public class ClassPrincipal extends JPanel implements Runnable, KeyListener {
         playerColision();
         GameOver();
     }
+
     public void playerColision() {
-        if (playerYPosition <= 0)
-            playerYPosition = 0;
-        else if (playerYPosition >= 380)
-            playerYPosition = 380;
+        if (player.getPlayerYPosition() <= 0)
+            player.setPlayerYPosition(0);
+        else if (player.getPlayerYPosition() >= 380)
+            player.setPlayerYPosition(380);
     }
 
     public void GameOver() {
@@ -133,33 +134,34 @@ public class ClassPrincipal extends JPanel implements Runnable, KeyListener {
             int lastScore = bestScore;
             if (score < lastScore) {
                 resposta = JOptionPane.showConfirmDialog(this, "Você perdeu!!" +
-                    "Você fez " + score + " pontos " +
-                    "e a " +
-                    "melhor pontução até agora foi " + lastScore + " pontos. " +
-                    "  Gostaria de jogar novamente");
+                        "Você fez " + score + " pontos " +
+                        "e a " +
+                        "melhor pontução até agora foi " + lastScore + " pontos. " +
+                        "  Gostaria de jogar novamente");
             } else {
                 resposta = JOptionPane.showConfirmDialog(this, "Você perdeu, mas está de parabéns." +
-                    "Você fez " + score + " pontos " +
-                    "e a " +
-                    "melhor pontuação até agora tinha si " + lastScore + " pontos." +
-                    "  Gostaria de jogar novamente");
+                        "Você fez " + score + " pontos " +
+                        "e a " +
+                        "melhor pontuação até agora tinha si " + lastScore + " pontos." +
+                        "  Gostaria de jogar novamente");
             }
             if (resposta == JOptionPane.OK_OPTION) {
                 lives = initialLives;
                 ballYPosition = 190;
                 ballXPosition = 450;
-                playerXPosition = 50;
-                playerYPosition = 140;
+                player.setPlayerXPosition(50);
+                player.setPlayerYPosition(140);
                 score = 0;
                 BallspeedX = 5;
                 BallspeedY = 5;
-                Playerspeed = 3;
-                up = false;
-                down = false;
+                player.setPlayerspeed(3);
+                player.setPlayerMovingUp(false);
+                player.setPlayerMovingDown(false);
             } else if (resposta == JOptionPane.NO_OPTION)
                 System.exit(lives);
         }
     }
+
     public void touchWall() {
         if (ballXPosition <= 0) {
             lives -= 1;
@@ -173,6 +175,7 @@ public class ClassPrincipal extends JPanel implements Runnable, KeyListener {
             }
         }
     }
+
     void playSound(String soundFile) throws Exception, IOException {
         File f = new File("./" + soundFile);
         AudioInputStream audioIn = AudioSystem.getAudioInputStream(f.toURI().toURL());
@@ -182,24 +185,26 @@ public class ClassPrincipal extends JPanel implements Runnable, KeyListener {
     }
 
     public void movimentation() {
-        if (up) {
-            playerYPosition -= Playerspeed;
+        if (player.isPlayerMovingUp()) {
+            player.setPlayerYPosition(player.getPlayerYPosition() - player.getPlayerspeed());
         }
-        if (down) {
-            playerYPosition += Playerspeed;
+        if (player.isPlayerMovingDown()) {
+            player.setPlayerYPosition(player.getPlayerYPosition() + player.getPlayerspeed());
         }
     }
+
     public void playerBallCollisions() {
-        if (ballXPosition <= playerXPosition + playerWidth) {
+        if (ballXPosition <= player.getPlayerXPosition() + player.getPlayerWidth()) {
             // Segundo if , agora referente ao eixo Y, ele precisa estar dentro de x
             // pois as 2 condições devem ser atendidas
-            if (ballYPosition >= playerYPosition && ballYPosition <= playerYPosition + playerHeight) {
+            if (ballYPosition >= player.getPlayerYPosition()
+                    && ballYPosition <= player.getPlayerYPosition() + player.getPlayerHeight()) {
                 if (bestScore < score)
                     bestScore = score;
                 BallspeedX *= -1;
                 BallspeedY *= -1;
                 score++;
-                Playerspeed += playerSpeedRate;
+                player.setPlayerspeed(player.getPlayerspeed() + player.getPlayerSpeedRate());
                 if (score % 4 == 0) {
                     if (BallspeedY <= 0)
                         BallspeedY -= ballSpeedRate;
@@ -232,6 +237,7 @@ public class ClassPrincipal extends JPanel implements Runnable, KeyListener {
         else
             BallSpeedAbsoluteY = BallspeedY;
     }
+
     public void FPS() {
         try {
             Thread.sleep(1000 / 60);
@@ -245,15 +251,16 @@ public class ClassPrincipal extends JPanel implements Runnable, KeyListener {
         // O primeiro passo para a criação de um componente em screen é definir a cor do
         // componente.
         super.paintComponent(g);
-        //BACKGROUND
+        // player.paintComponent(g);
+        // BACKGROUND
         g.drawImage(background, 0, 0, width, height, null);
         //Player
         g.setColor(Color.BLUE);
-        g.fillRoundRect(playerXPosition, playerYPosition, playerWidth, playerHeight, 15, 10);
+        g.fillRoundRect(player.getPlayerXPosition(), player.getPlayerYPosition(), player.getPlayerWidth(), player.getPlayerHeight(), 15, 10);
         //Ball
         g.setColor(Color.RED);
         g.fillOval(ballXPosition, ballYPosition, ballSize, ballSize);
-        //LIVES
+        // LIVES
         for (int i = 0; i <= lives - 1; i++) {
             g.drawImage(livesIco, 60 + 25 * i, 23, 25, 25, null);
         }
@@ -272,26 +279,39 @@ public class ClassPrincipal extends JPanel implements Runnable, KeyListener {
             g.drawString("Aperte espaço para voltar", 200, 200);
         }
     }
+
+    public void drawScore(Graphics g) {
+        super.paintComponent(g);
+        g.setColor(Color.BLUE);
+        g.drawString("Placar: " + score + " ponto(s)", width - 185, 40);
+        if (bestScore > score) {
+            g.drawString("Melhor Pontuação: " + bestScore + " pontos", width - 185, 80);
+        } else
+            g.drawString("Melhor Pontuação: " + score + " pontos", width - 185, 80);
+    }
+
     @Override
     public void keyTyped(KeyEvent e) {
         // TODO Auto-generated method stub
     }
+
     @Override
     public void keyPressed(KeyEvent e) {
         if (e.getKeyCode() == KeyEvent.VK_UP)
-            up = true;
+            player.setPlayerMovingUp(true);
         if (e.getKeyCode() == KeyEvent.VK_DOWN) {
-            down = true;
+            player.setPlayerMovingDown(true);
         }
         if (e.getKeyCode() == KeyEvent.VK_SPACE) {
             pause = !pause;
         }
     }
+
     @Override
     public void keyReleased(KeyEvent e) {
         if (e.getKeyCode() == KeyEvent.VK_UP)
-            up = false;
+            player.setPlayerMovingUp(false);
         if (e.getKeyCode() == KeyEvent.VK_DOWN)
-            down = false;
+            player.setPlayerMovingDown(false);
     }
 }
