@@ -29,39 +29,39 @@ public class ClassPrincipal extends JPanel implements Runnable, KeyListener {
     boolean pause = false;
     boolean up = false;
     boolean down = false;
-    Random aleatorio = new Random();
-    int taxBall = 2;
-    int taxPlayer = 1;
+    Random randomNumber = new Random();
+    int ballSpeedRate = 2;
+    int playerSpeedRate = 1;
     int BallspeedX = 5;
     int BallspeedY = 5;
     int Playerspeed = 4;
     int score = 0;
     int BallSpeedAbsoluteY;
     int BallSpeedAbsoluteX;
-    int tamBola = 10;
-    int tamPlayerX = 10;
-    int tamPlayerY = 60;
-    int posYBola = 190;
-    int posXBola = 450;
-    int posXPlayer = 10;
-    int posYPlayer = 140;
+    int ballSize = 10;
+    int playerWidth = 10;
+    int playerHeight = 60;
+    int ballYPosition = 190;
+    int ballXPosition = 450;
+    int playerXPosition = 10;
+    int playerYPosition = 140;
 
     public static void main(String[] args) throws Exception {
-        JFrame tela = new JFrame("                                                      Single Player Pong - by Robert Vitoriano");
-        tela.setSize(width, height);
-        tela.setVisible(true);
-        tela.setLocationRelativeTo(null);
-        tela.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        // INSTANCIAÇÃO DO CANVAS (Elemento que permite desenhos na tela)
+        JFrame screen = new JFrame("                                                      Single Player Pong - by Robert Vitoriano");
+        screen.setSize(width, height);
+        screen.setVisible(true);
+        screen.setLocationRelativeTo(null);
+        screen.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        // INSTANCIAÇÃO DO CANVAS (Elemento que permite desenhos na screen)
         ClassPrincipal canvas = new ClassPrincipal();
         canvas.setBounds(0, 0, width, height);
         canvas.setVisible(true);
-        // Adiçãpoo do canvas na tela principal
+        // Adiçãpoo do canvas na screen principal
         // Tornar valores customizaveis
-        tela.setLayout(null);
-        tela.add(canvas);
-        tela.setResizable(true);
-        tela.addKeyListener(canvas);
+        screen.setLayout(null);
+        screen.add(canvas);
+        screen.setResizable(true);
+        screen.addKeyListener(canvas);
     }
     public ClassPrincipal() throws Exception {
         BufferedReader reader;
@@ -89,7 +89,7 @@ public class ClassPrincipal extends JPanel implements Runnable, KeyListener {
         while (true) {
             if (pause == false) {
                 long startTime = System.currentTimeMillis();
-                atualizar();
+                updateGame();
                 repaint();
                 FPS();
                 long finalTime = System.currentTimeMillis();
@@ -100,20 +100,20 @@ public class ClassPrincipal extends JPanel implements Runnable, KeyListener {
                 System.out.println("Pausado");
         }
     }
-    public void atualizar() {
+    public void updateGame() {
         // Aqui trataremos dos movimentos
-        colisoesBola();
-        colisoesBolaJogador();
+        ballCollisions();
+        playerBallCollisions();
         movimentation();
         touchWall();
         playerColision();
         GameOver();
     }
     public void playerColision() {
-        if (posYPlayer <= 0)
-            posYPlayer = 0;
-        else if (posYPlayer >= 380)
-            posYPlayer = 380;
+        if (playerYPosition <= 0)
+            playerYPosition = 0;
+        else if (playerYPosition >= 380)
+            playerYPosition = 380;
     }
 
     public void GameOver() {
@@ -146,10 +146,10 @@ public class ClassPrincipal extends JPanel implements Runnable, KeyListener {
             }
             if (resposta == JOptionPane.OK_OPTION) {
                 lives = initialLives;
-                posYBola = 190;
-                posXBola = 450;
-                posXPlayer = 50;
-                posYPlayer = 140;
+                ballYPosition = 190;
+                ballXPosition = 450;
+                playerXPosition = 50;
+                playerYPosition = 140;
                 score = 0;
                 BallspeedX = 5;
                 BallspeedY = 5;
@@ -161,10 +161,10 @@ public class ClassPrincipal extends JPanel implements Runnable, KeyListener {
         }
     }
     public void touchWall() {
-        if (posXBola <= 0) {
+        if (ballXPosition <= 0) {
             lives -= 1;
-            posYBola = aleatorio.nextInt(400) + 30;
-            posXBola = aleatorio.nextInt(250) + 200;
+            ballYPosition = randomNumber.nextInt(400) + 30;
+            ballXPosition = randomNumber.nextInt(250) + 200;
             try {
                 playSound("hitPlayer.wav");
             } catch (Exception e) {
@@ -183,44 +183,44 @@ public class ClassPrincipal extends JPanel implements Runnable, KeyListener {
 
     public void movimentation() {
         if (up) {
-            posYPlayer -= Playerspeed;
+            playerYPosition -= Playerspeed;
         }
         if (down) {
-            posYPlayer += Playerspeed;
+            playerYPosition += Playerspeed;
         }
     }
-    public void colisoesBolaJogador() {
-        if (posXBola <= posXPlayer + tamPlayerX) {
+    public void playerBallCollisions() {
+        if (ballXPosition <= playerXPosition + playerWidth) {
             // Segundo if , agora referente ao eixo Y, ele precisa estar dentro de x
             // pois as 2 condições devem ser atendidas
-            if (posYBola >= posYPlayer && posYBola <= posYPlayer + tamPlayerY) {
+            if (ballYPosition >= playerYPosition && ballYPosition <= playerYPosition + playerHeight) {
                 if (bestScore < score)
                     bestScore = score;
                 BallspeedX *= -1;
                 BallspeedY *= -1;
                 score++;
-                Playerspeed += taxPlayer;
+                Playerspeed += playerSpeedRate;
                 if (score % 4 == 0) {
                     if (BallspeedY <= 0)
-                        BallspeedY -= taxBall;
+                        BallspeedY -= ballSpeedRate;
                     else
-                        BallspeedY += taxBall;
+                        BallspeedY += ballSpeedRate;
                     if (BallspeedX <= 0)
-                        BallspeedX -= taxBall;
+                        BallspeedX -= ballSpeedRate;
                     else
-                        BallspeedX += taxBall;
+                        BallspeedX += ballSpeedRate;
                 }
             }
         }
     }
 
-    public void colisoesBola() {
-        posXBola += BallspeedX;
-        posYBola += BallspeedY;
-        if (posXBola >= width - 25 || posXBola <= 0) {
+    public void ballCollisions() {
+        ballXPosition += BallspeedX;
+        ballYPosition += BallspeedY;
+        if (ballXPosition >= width - 25 || ballXPosition <= 0) {
             BallspeedX *= -1;
         }
-        if (posYBola >= height - 50 || posYBola <= 0) {
+        if (ballYPosition >= height - 50 || ballYPosition <= 0) {
             BallspeedY *= -1;
         }
         if (BallspeedX < 0)
@@ -242,17 +242,17 @@ public class ClassPrincipal extends JPanel implements Runnable, KeyListener {
     }
 
     public void paintComponent(Graphics g) {
-        // O primeiro passo para a criação de um componente em tela é definir a cor do
+        // O primeiro passo para a criação de um componente em screen é definir a cor do
         // componente.
         super.paintComponent(g);
         //BACKGROUND
         g.drawImage(background, 0, 0, width, height, null);
         //Player
         g.setColor(Color.BLUE);
-        g.fillRoundRect(posXPlayer, posYPlayer, tamPlayerX, tamPlayerY, 15, 10);
+        g.fillRoundRect(playerXPosition, playerYPosition, playerWidth, playerHeight, 15, 10);
         //Ball
         g.setColor(Color.RED);
-        g.fillOval(posXBola, posYBola, tamBola, tamBola);
+        g.fillOval(ballXPosition, ballYPosition, ballSize, ballSize);
         //LIVES
         for (int i = 0; i <= lives - 1; i++) {
             g.drawImage(livesIco, 60 + 25 * i, 23, 25, 25, null);
