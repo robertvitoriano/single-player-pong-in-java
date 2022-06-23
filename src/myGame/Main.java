@@ -24,9 +24,7 @@ public class Main extends JPanel implements Runnable, KeyListener {
     static int height = 480;
     int lives = 5;
     int initialLives = 5;
-    BufferedImage background;
     BufferedImage livesIco;
-    BufferedImage playerImage;
     int bestScore;
     int speedup = 0;
     boolean pause = false;
@@ -41,22 +39,19 @@ public class Main extends JPanel implements Runnable, KeyListener {
     int ballSize = 10;
     int ballYPosition = 190;
     int ballXPosition = 450;
-
     GameObject player;
+    GameObject life;
+    GameObject background;
 
     public static void main(String[] args) throws Exception {
-        JFrame screen = new JFrame(
-                "                                                      Single Player Pong - by Robert Vitoriano");
+        JFrame screen = new JFrame("Single Player Pong - by Robert Vitoriano");
         screen.setSize(width, height);
         screen.setVisible(true);
         screen.setLocationRelativeTo(null);
         screen.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        // INSTANCIAÇÃO DO CANVAS (Elemento que permite desenhos na screen)
         Main canvas = new Main();
         canvas.setBounds(0, 0, width, height);
         canvas.setVisible(true);
-        // Adiçãpoo do canvas na screen principal
-        // Tornar valores customizaveis
         screen.setLayout(null);
         screen.add(canvas);
         screen.setResizable(true);
@@ -69,18 +64,11 @@ public class Main extends JPanel implements Runnable, KeyListener {
         String FileContent = reader.readLine();
         bestScore = Integer.parseInt(FileContent);
         reader.close();
-        try {
-            background = ImageIO.read(new File("background_18.png"));
-            player = new GameObject("small-mario.png",10, 140, 60, 60);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        try {
-            livesIco = ImageIO.read(new File("heart-icon.png"));
-        } catch (IOException e1) {
-            System.out.println("N�o achei a imagem do cora��o");
-            e1.printStackTrace();
-        }
+
+        background = new Background("background.png", 0, 0, width, height);
+        player = new GameObject("small-mario.png", 10, 140, 60, 60);
+        life = new GameObject("heart-icon.png", 0, 23, 25, 25);
+
         Thread thread = new Thread(this);
         thread.start();
     }
@@ -267,28 +255,34 @@ public class Main extends JPanel implements Runnable, KeyListener {
 
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
-        // player.paintComponent(g);
-        // BACKGROUND
-        g.drawImage(background, 0, 0, width, height, null);
-
         try {
+            background.drawImage(g);
             player.drawImage(g);
+            drawLives(g);
+
         } catch (Exception e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
 
         // Ball
         g.setColor(Color.RED);
         g.fillOval(ballXPosition, ballYPosition, ballSize, ballSize);
-        // LIVES
+
+        drawScore(g);
+
+    }
+
+    public void drawLives(Graphics g) throws Exception {
         for (int i = 0; i <= lives - 1; i++) {
-            g.drawImage(livesIco, 60 + 25 * i, 23, 25, 25, null);
+            life.setXPosition(60 + 25 * i);
+            life.drawImage(g);
         }
         g.setColor(Color.BLUE);
         g.drawString("Vidas:  ", 20, 40);
         g.setColor(Color.RED);
+    }
 
+    public void drawScore(Graphics g) {
         g.setColor(Color.BLUE);
         g.drawString("Placar: " + score + " ponto(s)", width - 185, 40);
         if (bestScore > score) {
@@ -299,16 +293,6 @@ public class Main extends JPanel implements Runnable, KeyListener {
             g.setColor(Color.BLACK);
             g.drawString("Aperte espaço para voltar", 200, 200);
         }
-    }
-
-    public void drawScore(Graphics g) {
-        super.paintComponent(g);
-        g.setColor(Color.BLUE);
-        g.drawString("Placar: " + score + " ponto(s)", width - 185, 40);
-        if (bestScore > score) {
-            g.drawString("Melhor Pontuação: " + bestScore + " pontos", width - 185, 80);
-        } else
-            g.drawString("Melhor Pontuação: " + score + " pontos", width - 185, 80);
     }
 
     @Override

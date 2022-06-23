@@ -52,6 +52,16 @@ public class GameObject extends JPanel {
     readImage();
   }
 
+  public GameObject(String imagePath, int width, int height) {
+    this.imagePath = imagePath;
+    this.width = width;
+    this.height = height;
+  }
+  public GameObject(String imagePath) {
+    this.imagePath = imagePath;
+  }
+
+
   public int getSpeedRate() {
     return speedRate;
   }
@@ -115,6 +125,14 @@ public class GameObject extends JPanel {
 
   public int getYPosition() {
     return yPosition;
+  }
+
+  public void setWidth(int width) {
+    this.width = width;
+  }
+
+  public void setHeight(int height) {
+    this.height = height;
   }
 
   public int getSpeed() {
