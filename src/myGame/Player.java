@@ -11,7 +11,7 @@ public class Player extends JPanel {
   BufferedImage player;
   int playerXPosition = 10;
   int playerYPosition = 140;
-  int playerWidth = 10;
+  int playerWidth = 60;
   int playerHeight = 60;
   int Playerspeed = 4;
   boolean playerMovingDown;

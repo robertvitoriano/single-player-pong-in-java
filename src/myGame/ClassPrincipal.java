@@ -26,6 +26,7 @@ public class ClassPrincipal extends JPanel implements Runnable, KeyListener {
     int initialLives = 5;
     BufferedImage background;
     BufferedImage livesIco;
+    BufferedImage playerImage;
     int bestScore;
     int speedup = 0;
     boolean pause = false;
@@ -79,21 +80,18 @@ public class ClassPrincipal extends JPanel implements Runnable, KeyListener {
             System.out.println("N�o achei a imagem do cora��o");
             e1.printStackTrace();
         }
+
+        try {
+            playerImage = ImageIO.read(new File("small-mario.png"));
+        } catch (IOException e1) {
+            System.out.println("Não achei a imagem do mario");
+            e1.printStackTrace();
+        }
         Thread thread = new Thread(this);
         thread.start();
-        // Pegando URL
     }
 
     public void run() {
-        // try {
-        //     playSound("music1.wav");
-        // } catch (IOException e1) {
-        //     // TODO Auto-generated catch block
-        //     e1.printStackTrace();
-        // } catch (Exception e1) {
-        //     // TODO Auto-generated catch block
-        //     e1.printStackTrace();
-        // }
         while (true) {
             if (pause == false) {
                 long startTime = System.currentTimeMillis();
@@ -110,7 +108,6 @@ public class ClassPrincipal extends JPanel implements Runnable, KeyListener {
     }
 
     public void updateGame() {
-        // Aqui trataremos dos movimentos
         ballCollisions();
         playerBallCollisions();
         movimentation();
@@ -281,10 +278,14 @@ public class ClassPrincipal extends JPanel implements Runnable, KeyListener {
         // player.paintComponent(g);
         // BACKGROUND
         g.drawImage(background, 0, 0, width, height, null);
-        //Player
-        g.setColor(Color.BLUE);
-        g.fillRoundRect(player.getPlayerXPosition(), player.getPlayerYPosition(), player.getPlayerWidth(), player.getPlayerHeight(), 15, 10);
-        //Ball
+        // Player
+        // g.setColor(Color.BLUE);
+        // g.fillRoundRect(player.getPlayerXPosition(), player.getPlayerYPosition(),
+        // player.getPlayerWidth(), player.getPlayerHeight(), 15, 10);
+        g.drawImage(playerImage, player.getPlayerXPosition(), player.getPlayerYPosition(), player.getPlayerWidth(),
+                player.getPlayerHeight(), null);
+
+        // Ball
         g.setColor(Color.RED);
         g.fillOval(ballXPosition, ballYPosition, ballSize, ballSize);
         // LIVES
