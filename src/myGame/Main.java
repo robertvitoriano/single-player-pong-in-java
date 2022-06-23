@@ -19,7 +19,7 @@ import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
-public class ClassPrincipal extends JPanel implements Runnable, KeyListener {
+public class Main extends JPanel implements Runnable, KeyListener {
     static int width = 640;
     static int height = 480;
     int lives = 5;
@@ -42,7 +42,7 @@ public class ClassPrincipal extends JPanel implements Runnable, KeyListener {
     int ballYPosition = 190;
     int ballXPosition = 450;
 
-    Player player;
+    GameObject player;
 
     public static void main(String[] args) throws Exception {
         JFrame screen = new JFrame(
@@ -52,7 +52,7 @@ public class ClassPrincipal extends JPanel implements Runnable, KeyListener {
         screen.setLocationRelativeTo(null);
         screen.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         // INSTANCIAÇÃO DO CANVAS (Elemento que permite desenhos na screen)
-        ClassPrincipal canvas = new ClassPrincipal();
+        Main canvas = new Main();
         canvas.setBounds(0, 0, width, height);
         canvas.setVisible(true);
         // Adiçãpoo do canvas na screen principal
@@ -63,7 +63,7 @@ public class ClassPrincipal extends JPanel implements Runnable, KeyListener {
         screen.addKeyListener(canvas);
     }
 
-    public ClassPrincipal() throws Exception {
+    public Main() throws Exception {
         BufferedReader reader;
         reader = new BufferedReader(new FileReader("bestScore.txt"));
         String FileContent = reader.readLine();
@@ -81,7 +81,7 @@ public class ClassPrincipal extends JPanel implements Runnable, KeyListener {
             System.out.println("N�o achei a imagem do cora��o");
             e1.printStackTrace();
         }
-        player = new Player("small-mario.png",10, 140, 60, 60);
+        player = new GameObject("small-mario.png",10, 140, 60, 60);
         Thread thread = new Thread(this);
         thread.start();
     }
@@ -112,10 +112,10 @@ public class ClassPrincipal extends JPanel implements Runnable, KeyListener {
     }
 
     public void playerColision() {
-        if (player.getPlayerYPosition() <= 0)
-            player.setPlayerYPosition(0);
-        else if (player.getPlayerYPosition() >= 380)
-            player.setPlayerYPosition(380);
+        if (player.getYPosition() <= 0)
+            player.setYPosition(0);
+        else if (player.getYPosition() >= 380)
+            player.setYPosition(380);
     }
 
     public void GameOver() {
@@ -159,14 +159,14 @@ public class ClassPrincipal extends JPanel implements Runnable, KeyListener {
                 lives = initialLives;
                 ballYPosition = 190;
                 ballXPosition = 450;
-                player.setPlayerXPosition(50);
-                player.setPlayerYPosition(140);
+                player.setXPosition(50);
+                player.setYPosition(140);
                 score = 0;
                 BallspeedX = 5;
                 BallspeedY = 5;
-                player.setPlayerspeed(3);
-                player.setPlayerMovingUp(false);
-                player.setPlayerMovingDown(false);
+                player.setSpeed(3);
+                player.setMovingUp(false);
+                player.setMovingDown(false);
             } else if (resposta == JOptionPane.NO_OPTION)
                 System.exit(lives);
         }
@@ -195,20 +195,20 @@ public class ClassPrincipal extends JPanel implements Runnable, KeyListener {
     }
 
     public void movimentation() {
-        if (player.isPlayerMovingUp()) {
-            player.setPlayerYPosition(player.getPlayerYPosition() - player.getPlayerspeed());
+        if (player.isMovingUp()) {
+            player.setYPosition(player.getYPosition() - player.getSpeed());
         }
-        if (player.isPlayerMovingDown()) {
-            player.setPlayerYPosition(player.getPlayerYPosition() + player.getPlayerspeed());
+        if (player.isMovingDown()) {
+            player.setYPosition(player.getYPosition() + player.getSpeed());
         }
     }
 
     public void playerBallCollisions() {
-        if (ballXPosition <= player.getPlayerXPosition() + player.getPlayerWidth()) {
+        if (ballXPosition <= player.getXPosition() + player.getWidth()) {
             // Segundo if , agora referente ao eixo Y, ele precisa estar dentro de x
             // pois as 2 condições devem ser atendidas
-            if (ballYPosition >= player.getPlayerYPosition()
-                    && ballYPosition <= player.getPlayerYPosition() + player.getPlayerHeight()) {
+            if (ballYPosition >= player.getYPosition()
+                    && ballYPosition <= player.getYPosition() + player.getHeight()) {
                 if (bestScore < score)
                     bestScore = score;
                 BallspeedX *= -1;
@@ -223,7 +223,7 @@ public class ClassPrincipal extends JPanel implements Runnable, KeyListener {
                     e.printStackTrace();
                 }
                 score++;
-                player.setPlayerspeed(player.getPlayerspeed() + player.getPlayerSpeedRate());
+                player.setSpeed(player.getSpeed() + player.getSpeedRate());
                 if (score % 4 == 0) {
                     if (BallspeedY <= 0)
                         BallspeedY -= ballSpeedRate;
@@ -274,7 +274,7 @@ public class ClassPrincipal extends JPanel implements Runnable, KeyListener {
         // BACKGROUND
         g.drawImage(background, 0, 0, width, height, null);
 
-        player.drawPlayer(g);
+        player.draw(g);
 
         // Ball
         g.setColor(Color.RED);
@@ -317,9 +317,9 @@ public class ClassPrincipal extends JPanel implements Runnable, KeyListener {
     @Override
     public void keyPressed(KeyEvent e) {
         if (e.getKeyCode() == KeyEvent.VK_UP)
-            player.setPlayerMovingUp(true);
+            player.setMovingUp(true);
         if (e.getKeyCode() == KeyEvent.VK_DOWN) {
-            player.setPlayerMovingDown(true);
+            player.setMovingDown(true);
         }
         if (e.getKeyCode() == KeyEvent.VK_SPACE) {
             pause = !pause;
@@ -329,8 +329,8 @@ public class ClassPrincipal extends JPanel implements Runnable, KeyListener {
     @Override
     public void keyReleased(KeyEvent e) {
         if (e.getKeyCode() == KeyEvent.VK_UP)
-            player.setPlayerMovingUp(false);
+            player.setMovingUp(false);
         if (e.getKeyCode() == KeyEvent.VK_DOWN)
-            player.setPlayerMovingDown(false);
+            player.setMovingDown(false);
     }
 }
