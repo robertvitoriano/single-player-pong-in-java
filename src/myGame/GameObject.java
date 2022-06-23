@@ -10,12 +10,62 @@ import javax.swing.JPanel;
 
 public class GameObject extends JPanel {
   BufferedImage image = null;
+  Color color = null;
   String imagePath;
   int xPosition;
   int yPosition;
   int width;
   int height;
   int speed = 4;
+  int size = 0;
+  int speedRate = 1;
+  int speedX = 0;
+  int speedY = 0;
+  public int getSpeedAbsoluteX() {
+    return speedAbsoluteX;
+  }
+
+  public void setSpeedAbsoluteX(int speedAbsoluteX) {
+    this.speedAbsoluteX = speedAbsoluteX;
+  }
+
+  public int getSpeedAbsoluteY() {
+    return SpeedAbsoluteY;
+  }
+
+  public void setSpeedAbsoluteY(int speedAbsoluteY) {
+    SpeedAbsoluteY = speedAbsoluteY;
+  }
+
+  int speedAbsoluteX = 0;
+  int SpeedAbsoluteY = 0;
+  boolean movingDown;
+  boolean movingUp;
+  boolean movingLeft;
+  boolean movingRight;
+
+  public int getSpeedX() {
+    return speedX;
+  }
+
+  public void setSpeedX(int speedX) {
+    this.speedX = speedX;
+  }
+
+  public int getSpeedY() {
+    return speedY;
+  }
+
+  public void setSpeedY(int speedY) {
+    this.speedY = speedY;
+  }
+  public int getComponentSize() {
+    return size;
+  }
+
+  public void setSize(int size) {
+    this.size = size;
+  }
 
   public boolean isMovingLeft() {
     return movingLeft;
@@ -33,12 +83,6 @@ public class GameObject extends JPanel {
     this.movingRight = movingRight;
   }
 
-  int speedRate = 1;
-  boolean movingDown;
-  boolean movingUp;
-  boolean movingLeft;
-  boolean movingRight;
-
   public GameObject(String imagePath,
       int xPosition,
       int yPosition,
@@ -52,15 +96,27 @@ public class GameObject extends JPanel {
     readImage();
   }
 
+  public GameObject(Color color,
+      int xPosition,
+      int yPosition,
+      int width,
+      int height) {
+    this.color = color;
+    this.xPosition = xPosition;
+    this.yPosition = yPosition;
+    this.width = width;
+    this.height = height;
+  }
+
   public GameObject(String imagePath, int width, int height) {
     this.imagePath = imagePath;
     this.width = width;
     this.height = height;
   }
+
   public GameObject(String imagePath) {
     this.imagePath = imagePath;
   }
-
 
   public int getSpeedRate() {
     return speedRate;
@@ -151,6 +207,10 @@ public class GameObject extends JPanel {
       e.printStackTrace();
       System.exit(0);
     }
+  }
 
+  public void drawOval(Graphics g) {
+    g.setColor(color);
+    g.fillOval(xPosition, yPosition, size, size);
   }
 }

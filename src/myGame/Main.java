@@ -24,24 +24,15 @@ public class Main extends JPanel implements Runnable, KeyListener {
     static int height = 480;
     int lives = 5;
     int initialLives = 5;
-    BufferedImage livesIco;
     int bestScore;
-    int speedup = 0;
     boolean pause = false;
     Random randomNumber = new Random();
-    int ballSpeedRate = 2;
-    int playerSpeedRate = 1;
-    int BallspeedX = 5;
-    int BallspeedY = 5;
     int score = 0;
-    int BallSpeedAbsoluteY;
-    int BallSpeedAbsoluteX;
-    int ballSize = 10;
-    int ballYPosition = 190;
-    int ballXPosition = 450;
+
     GameObject player;
     GameObject life;
     GameObject background;
+    GameObject ball;
 
     public static void main(String[] args) throws Exception {
         JFrame screen = new JFrame("Single Player Pong - by Robert Vitoriano");
@@ -68,7 +59,11 @@ public class Main extends JPanel implements Runnable, KeyListener {
         background = new Background("background.png", 0, 0, width, height);
         player = new GameObject("small-mario.png", 10, 140, 60, 60);
         life = new GameObject("heart-icon.png", 0, 23, 25, 25);
-
+        ball = new GameObject(Color.BLUE, 450, 190, 10, 10);
+        ball.setSpeedX(5);
+        ball.setSpeedY(5);
+        ball.setSpeedRate(2);
+        ball.setSize(10);
         Thread thread = new Thread(this);
         thread.start();
     }
@@ -109,11 +104,7 @@ public class Main extends JPanel implements Runnable, KeyListener {
         if (lives < 1) {
             try {
                 playSound("loseSound.wav");
-            } catch (IOException e1) {
-                // TODO Auto-generated catch block
-                e1.printStackTrace();
             } catch (Exception e1) {
-                // TODO Auto-generated catch block
                 e1.printStackTrace();
             }
             if (score > bestScore) {
@@ -123,7 +114,6 @@ public class Main extends JPanel implements Runnable, KeyListener {
                     writer.write("" + score);
                     writer.close();
                 } catch (IOException e) {
-                    // TODO Auto-generated catch block
                     e.printStackTrace();
                 }
             }
@@ -143,27 +133,32 @@ public class Main extends JPanel implements Runnable, KeyListener {
                         "  Gostaria de jogar novamente");
             }
             if (resposta == JOptionPane.OK_OPTION) {
-                lives = initialLives;
-                ballYPosition = 190;
-                ballXPosition = 450;
-                player.setXPosition(50);
-                player.setYPosition(140);
-                score = 0;
-                BallspeedX = 5;
-                BallspeedY = 5;
-                player.setSpeed(3);
-                player.setMovingUp(false);
-                player.setMovingDown(false);
+                restartGame();
             } else if (resposta == JOptionPane.NO_OPTION)
                 System.exit(lives);
         }
     }
 
+    public void restartGame() {
+        lives = initialLives;
+        score = 0;
+        ball.setXPosition(450);
+        ball.setYPosition(190);
+        ball.setSpeedX(5);
+        ball.setSpeedY(5);
+        ball.setSpeedRate(2);
+        player.setXPosition(50);
+        player.setYPosition(140);
+        player.setSpeed(3);
+        player.setMovingUp(false);
+        player.setMovingDown(false);
+    }
+
     public void touchWall() {
-        if (ballXPosition <= 0) {
+        if (ball.getXPosition() <= 0) {
             lives -= 1;
-            ballYPosition = randomNumber.nextInt(400) + 30;
-            ballXPosition = randomNumber.nextInt(250) + 200;
+            ball.setYPosition(randomNumber.nextInt(400) + 30);
+            ball.setXPosition(randomNumber.nextInt(250) + 200);
             try {
                 playSound("hitPlayer.wav");
             } catch (Exception e) {
@@ -191,15 +186,13 @@ public class Main extends JPanel implements Runnable, KeyListener {
     }
 
     public void playerBallCollisions() {
-        if (ballXPosition <= player.getXPosition() + player.getWidth()) {
-            // Segundo if , agora referente ao eixo Y, ele precisa estar dentro de x
-            // pois as 2 condições devem ser atendidas
-            if (ballYPosition >= player.getYPosition()
-                    && ballYPosition <= player.getYPosition() + player.getHeight()) {
+        if (ball.getXPosition() <= player.getXPosition() + player.getWidth()) {
+            if (ball.getYPosition() >= player.getYPosition()
+                    && ball.getYPosition() <= player.getYPosition() + player.getHeight()) {
                 if (bestScore < score)
                     bestScore = score;
-                BallspeedX *= -1;
-                BallspeedY *= -1;
+                ball.setSpeedX(ball.getSpeedX() * -1);
+                ball.setSpeedY(ball.getSpeedY() * -1);
                 try {
                     playSound("hitBallSound.wav");
                 } catch (IOException e) {
@@ -212,43 +205,42 @@ public class Main extends JPanel implements Runnable, KeyListener {
                 score++;
                 player.setSpeed(player.getSpeed() + player.getSpeedRate());
                 if (score % 4 == 0) {
-                    if (BallspeedY <= 0)
-                        BallspeedY -= ballSpeedRate;
+                    if (ball.getSpeedY() <= 0)
+                        ball.setSpeedY(ball.getSpeedY() - ball.getSpeedRate());
                     else
-                        BallspeedY += ballSpeedRate;
-                    if (BallspeedX <= 0)
-                        BallspeedX -= ballSpeedRate;
+                        ball.setSpeedY(ball.getSpeedY() + ball.getSpeedRate());
+                    if (ball.getSpeedX() <= 0)
+                        ball.setSpeedX(ball.getSpeedX() - ball.getSpeedRate());
                     else
-                        BallspeedX += ballSpeedRate;
+                        ball.setSpeedX(ball.getSpeedX() + ball.getSpeedRate());
                 }
             }
         }
     }
 
     public void ballCollisions() {
-        ballXPosition += BallspeedX;
-        ballYPosition += BallspeedY;
-        if (ballXPosition >= width - 25 || ballXPosition <= 0) {
-            BallspeedX *= -1;
+        ball.setXPosition(ball.getXPosition() + ball.getSpeedX());
+        ball.setYPosition(ball.getYPosition() + ball.getSpeedY());
+        if (ball.getXPosition() >= width - 25 || ball.getXPosition() <= 0) {
+            ball.setSpeedX(ball.getSpeedX() * -1);
         }
-        if (ballYPosition >= height - 50 || ballYPosition <= 0) {
-            BallspeedY *= -1;
+        if (ball.getYPosition() >= height - 50 || ball.getYPosition() <= 0) {
+            ball.setSpeedY(ball.getSpeedY() * -1);
         }
-        if (BallspeedX < 0)
-            BallSpeedAbsoluteX = -BallspeedX;
+        if (ball.getSpeedX() < 0)
+            ball.setSpeedAbsoluteX(-ball.getSpeedX());
         else
-            BallSpeedAbsoluteX = BallspeedX;
-        if (BallspeedY < 0)
-            BallSpeedAbsoluteY = -BallspeedY;
+            ball.setSpeedAbsoluteX(ball.getSpeedX());
+        if (ball.getSpeedY() < 0)
+            ball.setSpeedAbsoluteY(-ball.getSpeedY());
         else
-            BallSpeedAbsoluteY = BallspeedY;
+            ball.setSpeedAbsoluteY(ball.getSpeedY());
     }
 
     public void FPS() {
         try {
             Thread.sleep(1000 / 60);
         } catch (InterruptedException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
     }
@@ -259,17 +251,11 @@ public class Main extends JPanel implements Runnable, KeyListener {
             background.drawImage(g);
             player.drawImage(g);
             drawLives(g);
-
+            drawScore(g);
+            ball.drawOval(g);
         } catch (Exception e) {
             e.printStackTrace();
         }
-
-        // Ball
-        g.setColor(Color.RED);
-        g.fillOval(ballXPosition, ballYPosition, ballSize, ballSize);
-
-        drawScore(g);
-
     }
 
     public void drawLives(Graphics g) throws Exception {
