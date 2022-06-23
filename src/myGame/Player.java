@@ -1,24 +1,47 @@
 package myGame;
 
-import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+
 import javax.imageio.ImageIO;
 import javax.swing.JPanel;
 
 public class Player extends JPanel {
-  BufferedImage player;
-  int playerXPosition = 10;
-  int playerYPosition = 140;
-  int playerWidth = 60;
-  int playerHeight = 60;
+  BufferedImage playerImage;
+  String playerImagePath;
+  int playerXPosition;
+  int playerYPosition;
+  int playerWidth;
+  int playerHeight;
   int Playerspeed = 4;
+  int playerSpeedRate = 1;
   boolean playerMovingDown;
   boolean playerMovingUp;
 
+  public Player(String playerImagePath,
+      int playerXPosition,
+      int playerYPosition,
+      int playerWidth,
+      int playerHeight) {
+    this.playerImagePath = playerImagePath;
+    this.playerXPosition = playerXPosition;
+    this.playerYPosition = playerYPosition;
+    this.playerWidth = playerWidth;
+    this.playerHeight = playerHeight;
+    readPlayerImage();
+  }
+
   public int getPlayerSpeedRate() {
     return playerSpeedRate;
+  }
+
+  private void readPlayerImage() {
+    try {
+      playerImage = ImageIO.read(new File(this.playerImagePath));
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
   }
 
   public boolean isPlayerMovingDown() {
@@ -41,19 +64,8 @@ public class Player extends JPanel {
     this.playerSpeedRate = playerSpeedRate;
   }
 
-  int playerSpeedRate = 1;
-
-  public Player() {
-    try {
-      player = ImageIO.read(new File("small-mario.png"));
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
-
-  }
-
-  public BufferedImage getPlayer() {
-    return player;
+  public BufferedImage getPlayerImage() {
+    return playerImage;
   }
 
   public int getPlayerXPosition() {
@@ -87,11 +99,4 @@ public class Player extends JPanel {
   public int getPlayerspeed() {
     return Playerspeed;
   }
-
-  // public void paintComponent(Graphics g) {
-  //   super.paintComponent(g);
-  //   g.drawImage(player, playerXPosition, playerYPosition, playerWidth, playerHeight, null);
-  // }
-
 }
-  

@@ -41,7 +41,8 @@ public class ClassPrincipal extends JPanel implements Runnable, KeyListener {
     int ballSize = 10;
     int ballYPosition = 190;
     int ballXPosition = 450;
-    Player player = new Player();
+
+    Player player;
 
     public static void main(String[] args) throws Exception {
         JFrame screen = new JFrame(
@@ -81,12 +82,13 @@ public class ClassPrincipal extends JPanel implements Runnable, KeyListener {
             e1.printStackTrace();
         }
 
-        try {
-            playerImage = ImageIO.read(new File("small-mario.png"));
-        } catch (IOException e1) {
-            System.out.println("Não achei a imagem do mario");
-            e1.printStackTrace();
-        }
+        // try {
+        //     playerImage = ImageIO.read(new File("small-mario.png"));
+        // } catch (IOException e1) {
+        //     System.out.println("Não achei a imagem do mario");
+        //     e1.printStackTrace();
+        // }
+        player = new Player("small-mario.png",10, 140, 60, 60);
         Thread thread = new Thread(this);
         thread.start();
     }
@@ -278,11 +280,8 @@ public class ClassPrincipal extends JPanel implements Runnable, KeyListener {
         // player.paintComponent(g);
         // BACKGROUND
         g.drawImage(background, 0, 0, width, height, null);
-        // Player
-        // g.setColor(Color.BLUE);
-        // g.fillRoundRect(player.getPlayerXPosition(), player.getPlayerYPosition(),
-        // player.getPlayerWidth(), player.getPlayerHeight(), 15, 10);
-        g.drawImage(playerImage, player.getPlayerXPosition(), player.getPlayerYPosition(), player.getPlayerWidth(),
+
+        g.drawImage(player.getPlayerImage(), player.getPlayerXPosition(), player.getPlayerYPosition(), player.getPlayerWidth(),
                 player.getPlayerHeight(), null);
 
         // Ball
