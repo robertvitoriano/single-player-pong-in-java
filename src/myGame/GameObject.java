@@ -9,7 +9,7 @@ import javax.imageio.ImageIO;
 import javax.swing.JPanel;
 
 public class GameObject extends JPanel {
-  BufferedImage image;
+  BufferedImage image = null;
   String imagePath;
   int xPosition;
   int yPosition;
@@ -59,8 +59,9 @@ public class GameObject extends JPanel {
   private void readImage() {
     try {
       image = ImageIO.read(new File(this.imagePath));
-    } catch (IOException e) {
+    } catch (Exception e) {
       e.printStackTrace();
+      System.exit(0);
     }
   }
 
@@ -120,8 +121,18 @@ public class GameObject extends JPanel {
     return speed;
   }
 
-  public void draw(Graphics g) {
-    g.drawImage(image, xPosition, yPosition, width,
-        height, null);
+  public void drawImage(Graphics g) throws Exception {
+    try {
+      if (image == null) {
+        throw new Exception("Image not found");
+      }
+      g.drawImage(image, xPosition, yPosition, width,
+          height, null);
+
+    } catch (Exception e) {
+      e.printStackTrace();
+      System.exit(0);
+    }
+
   }
 }

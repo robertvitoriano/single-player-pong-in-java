@@ -71,9 +71,9 @@ public class Main extends JPanel implements Runnable, KeyListener {
         reader.close();
         try {
             background = ImageIO.read(new File("background_18.png"));
+            player = new GameObject("small-mario.png",10, 140, 60, 60);
         } catch (IOException e) {
             e.printStackTrace();
-            //
         }
         try {
             livesIco = ImageIO.read(new File("heart-icon.png"));
@@ -81,7 +81,6 @@ public class Main extends JPanel implements Runnable, KeyListener {
             System.out.println("N�o achei a imagem do cora��o");
             e1.printStackTrace();
         }
-        player = new GameObject("small-mario.png",10, 140, 60, 60);
         Thread thread = new Thread(this);
         thread.start();
     }
@@ -267,14 +266,17 @@ public class Main extends JPanel implements Runnable, KeyListener {
     }
 
     public void paintComponent(Graphics g) {
-        // O primeiro passo para a criação de um componente em screen é definir a cor do
-        // componente.
         super.paintComponent(g);
         // player.paintComponent(g);
         // BACKGROUND
         g.drawImage(background, 0, 0, width, height, null);
 
-        player.draw(g);
+        try {
+            player.drawImage(g);
+        } catch (Exception e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
 
         // Ball
         g.setColor(Color.RED);
