@@ -3,7 +3,8 @@ package myGame;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-
+import java.awt.Color;
+import java.awt.Graphics;
 import javax.imageio.ImageIO;
 import javax.swing.JPanel;
 
@@ -98,5 +99,10 @@ public class Player extends JPanel {
 
   public int getPlayerspeed() {
     return Playerspeed;
+  }
+
+  public void drawPlayer(Graphics g) {
+    g.drawImage(playerImage, playerXPosition, playerYPosition, playerWidth,
+        playerHeight, null);
   }
 }

@@ -81,13 +81,6 @@ public class ClassPrincipal extends JPanel implements Runnable, KeyListener {
             System.out.println("N�o achei a imagem do cora��o");
             e1.printStackTrace();
         }
-
-        // try {
-        //     playerImage = ImageIO.read(new File("small-mario.png"));
-        // } catch (IOException e1) {
-        //     System.out.println("Não achei a imagem do mario");
-        //     e1.printStackTrace();
-        // }
         player = new Player("small-mario.png",10, 140, 60, 60);
         Thread thread = new Thread(this);
         thread.start();
@@ -281,8 +274,7 @@ public class ClassPrincipal extends JPanel implements Runnable, KeyListener {
         // BACKGROUND
         g.drawImage(background, 0, 0, width, height, null);
 
-        g.drawImage(player.getPlayerImage(), player.getPlayerXPosition(), player.getPlayerYPosition(), player.getPlayerWidth(),
-                player.getPlayerHeight(), null);
+        player.drawPlayer(g);
 
         // Ball
         g.setColor(Color.RED);
