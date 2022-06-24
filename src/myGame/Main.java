@@ -25,15 +25,16 @@ public class Main extends JPanel implements Runnable, KeyListener {
     int lives = 5;
     int initialLives = 5;
     int bestScore;
+    int hitWallSound = 0;
     boolean pause = false;
     Random randomNumber = new Random();
     int score = 0;
-    Clip mainMusic;
+
     GameObject player;
     GameObject life;
     GameObject background;
     GameObject ball;
-    MusicPlayer musicPlayer;
+    Clip mainMusicClip;
 
     public static void main(String[] args) throws Exception {
         JFrame screen = new JFrame("Single Player Pong - by Robert Vitoriano");
@@ -56,13 +57,11 @@ public class Main extends JPanel implements Runnable, KeyListener {
         String FileContent = reader.readLine();
         bestScore = Integer.parseInt(FileContent);
         reader.close();
-
-        musicPlayer = new MusicPlayer();
-        musicPlayer.addMusic("gameMusic.wav", "mainMusic");
-        musicPlayer.loop("mainMusic");
-        musicPlayer.addMusic("loseSound.wav", "loseSound");
-        musicPlayer.addMusic("ballHitWallSound.wav", "hitWallSound");
-        musicPlayer.addMusic("hitBallSound.wav", "hitBallSound");
+        File f = new File("./gameMusic.wav");
+        AudioInputStream audioIn = AudioSystem.getAudioInputStream(f.toURI().toURL());
+        mainMusicClip = AudioSystem.getClip();
+        mainMusicClip.open(audioIn);
+        mainMusicClip.loop(Clip.LOOP_CONTINUOUSLY);
 
         background = new Background("background.png", 0, 0, width, height);
         player = new GameObject("small-mario.png", 10, 140, 60, 60);
@@ -111,8 +110,8 @@ public class Main extends JPanel implements Runnable, KeyListener {
     public void GameOver() {
         if (lives < 1) {
             try {
-                musicPlayer.stop("mainMusic");
-                musicPlayer.play("loseSound");
+                mainMusicClip.stop();
+                playSound("loseSound.wav");
             } catch (Exception e1) {
                 e1.printStackTrace();
             }
@@ -144,12 +143,13 @@ public class Main extends JPanel implements Runnable, KeyListener {
             if (resposta == JOptionPane.OK_OPTION) {
                 restartGame();
             } else if (resposta == JOptionPane.NO_OPTION)
-                System.exit(lives);
+                mainMusicClip.close();
+            System.exit(lives);
         }
     }
 
     public void restartGame() {
-        musicPlayer.loop("mainMusic");
+        mainMusicClip.loop(Clip.LOOP_CONTINUOUSLY);
         lives = initialLives;
         score = 0;
         ball.setXPosition(450);
@@ -169,9 +169,21 @@ public class Main extends JPanel implements Runnable, KeyListener {
             lives -= 1;
             ball.setYPosition(randomNumber.nextInt(400) + 30);
             ball.setXPosition(randomNumber.nextInt(250) + 200);
-            musicPlayer.play("hitWallSound");
-
+            try {
+                playSound("missedSound.wav");
+            } catch (Exception e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
         }
+    }
+
+    void playSound(String soundFile) throws Exception, IOException {
+        File f = new File("./" + soundFile);
+        AudioInputStream audioIn = AudioSystem.getAudioInputStream(f.toURI().toURL());
+        Clip clip = AudioSystem.getClip();
+        clip.open(audioIn);
+        clip.start();
     }
 
     public void movimentation() {
@@ -191,8 +203,15 @@ public class Main extends JPanel implements Runnable, KeyListener {
                     bestScore = score;
                 ball.setSpeedX(ball.getSpeedX() * -1);
                 ball.setSpeedY(ball.getSpeedY() * -1);
-                musicPlayer.play("hitBallSound");
-
+                try {
+                    playSound("hitBallSound.wav");
+                } catch (IOException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                } catch (Exception e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
                 score++;
                 player.setSpeed(player.getSpeed() + player.getSpeedRate());
                 if (score % 4 == 0) {
@@ -210,22 +229,56 @@ public class Main extends JPanel implements Runnable, KeyListener {
     }
 
     public void ballCollisions() {
+ 
         ball.setXPosition(ball.getXPosition() + ball.getSpeedX());
         ball.setYPosition(ball.getYPosition() + ball.getSpeedY());
         if (ball.getXPosition() >= width - 25 || ball.getXPosition() <= 0) {
             ball.setSpeedX(ball.getSpeedX() * -1);
+            // playHitWallSound();
         }
         if (ball.getYPosition() >= height - 50 || ball.getYPosition() <= 0) {
             ball.setSpeedY(ball.getSpeedY() * -1);
+            // playHitWallSound();
+
         }
-        if (ball.getSpeedX() < 0)
+        if (ball.getSpeedX() < 0){
             ball.setSpeedAbsoluteX(-ball.getSpeedX());
-        else
+            // playHitWallSound();
+        }
+            
+        else{
             ball.setSpeedAbsoluteX(ball.getSpeedX());
-        if (ball.getSpeedY() < 0)
+            // playHitWallSound();
+        }
+        if (ball.getSpeedY() < 0){
             ball.setSpeedAbsoluteY(-ball.getSpeedY());
-        else
+            // playHitWallSound();
+        }
+        else{
             ball.setSpeedAbsoluteY(ball.getSpeedY());
+            // playHitWallSound();
+        }
+    }
+
+    public void playHitWallSound(){
+        try {
+            if (hitWallSound == 2) {
+                playSound("hitWall1.wav");
+                hitWallSound = 1;
+            } else if (hitWallSound == 1) {
+                playSound("hitWall2.wav");
+                hitWallSound = 2;
+            } else {
+                hitWallSound = 1;
+                playSound("hitWall1.wav");
+            }
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (Exception e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
     }
 
     public void FPS() {
