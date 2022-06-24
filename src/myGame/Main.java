@@ -28,11 +28,12 @@ public class Main extends JPanel implements Runnable, KeyListener {
     boolean pause = false;
     Random randomNumber = new Random();
     int score = 0;
-
+    Clip mainMusic;
     GameObject player;
     GameObject life;
     GameObject background;
     GameObject ball;
+    MusicPlayer musicPlayer;
 
     public static void main(String[] args) throws Exception {
         JFrame screen = new JFrame("Single Player Pong - by Robert Vitoriano");
@@ -55,6 +56,13 @@ public class Main extends JPanel implements Runnable, KeyListener {
         String FileContent = reader.readLine();
         bestScore = Integer.parseInt(FileContent);
         reader.close();
+
+        musicPlayer = new MusicPlayer();
+        musicPlayer.addMusic("gameMusic.wav", "mainMusic");
+        musicPlayer.loop("mainMusic");
+        musicPlayer.addMusic("loseSound.wav", "loseSound");
+        musicPlayer.addMusic("ballHitWallSound.wav", "hitWallSound");
+        musicPlayer.addMusic("hitBallSound.wav", "hitBallSound");
 
         background = new Background("background.png", 0, 0, width, height);
         player = new GameObject("small-mario.png", 10, 140, 60, 60);
@@ -103,7 +111,8 @@ public class Main extends JPanel implements Runnable, KeyListener {
     public void GameOver() {
         if (lives < 1) {
             try {
-                playSound("loseSound.wav");
+                musicPlayer.stop("mainMusic");
+                musicPlayer.play("loseSound");
             } catch (Exception e1) {
                 e1.printStackTrace();
             }
@@ -140,6 +149,7 @@ public class Main extends JPanel implements Runnable, KeyListener {
     }
 
     public void restartGame() {
+        musicPlayer.loop("mainMusic");
         lives = initialLives;
         score = 0;
         ball.setXPosition(450);
@@ -159,21 +169,9 @@ public class Main extends JPanel implements Runnable, KeyListener {
             lives -= 1;
             ball.setYPosition(randomNumber.nextInt(400) + 30);
             ball.setXPosition(randomNumber.nextInt(250) + 200);
-            try {
-                playSound("hitPlayer.wav");
-            } catch (Exception e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-        }
-    }
+            musicPlayer.play("hitWallSound");
 
-    void playSound(String soundFile) throws Exception, IOException {
-        File f = new File("./" + soundFile);
-        AudioInputStream audioIn = AudioSystem.getAudioInputStream(f.toURI().toURL());
-        Clip clip = AudioSystem.getClip();
-        clip.open(audioIn);
-        clip.start();
+        }
     }
 
     public void movimentation() {
@@ -193,15 +191,8 @@ public class Main extends JPanel implements Runnable, KeyListener {
                     bestScore = score;
                 ball.setSpeedX(ball.getSpeedX() * -1);
                 ball.setSpeedY(ball.getSpeedY() * -1);
-                try {
-                    playSound("hitBallSound.wav");
-                } catch (IOException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                } catch (Exception e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
+                musicPlayer.play("hitBallSound");
+
                 score++;
                 player.setSpeed(player.getSpeed() + player.getSpeedRate());
                 if (score % 4 == 0) {
