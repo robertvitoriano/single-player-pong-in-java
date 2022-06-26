@@ -15,14 +15,13 @@ import javax.imageio.ImageIO;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
-import javax.sound.sampled.FloatControl;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
 public class Main extends JPanel implements Runnable, KeyListener {
-    static int width = 1360;
-    static int height = 720;
+    static int width = 640;
+    static int height = 480;
     int lives = 5;
     int initialLives = 5;
     int bestScore;
@@ -31,14 +30,14 @@ public class Main extends JPanel implements Runnable, KeyListener {
     Random randomNumber = new Random();
     int score = 0;
 
-    GameObject naruto;
-    GameObject sasuke;
+    GameObject player;
     GameObject life;
     GameObject background;
+    GameObject ball;
     Clip mainMusicClip;
 
     public static void main(String[] args) throws Exception {
-        JFrame screen = new JFrame("Naruto vs Sasuke - by Robert Vitoriano");
+        JFrame screen = new JFrame("Single Player Pong - by Robert Vitoriano");
         screen.setSize(width, height);
         screen.setVisible(true);
         screen.setLocationRelativeTo(null);
@@ -58,22 +57,20 @@ public class Main extends JPanel implements Runnable, KeyListener {
         String FileContent = reader.readLine();
         bestScore = Integer.parseInt(FileContent);
         reader.close();
-        File f = new File("./Naruto Konoha Peace.wav");
+        File f = new File("./gameMusic.wav");
         AudioInputStream audioIn = AudioSystem.getAudioInputStream(f.toURI().toURL());
         mainMusicClip = AudioSystem.getClip();
         mainMusicClip.open(audioIn);
-        FloatControl gainControl = (FloatControl) mainMusicClip.getControl(FloatControl.Type.MASTER_GAIN);        
-        gainControl.setValue(20f * (float) Math.log10(0.2));
         mainMusicClip.loop(Clip.LOOP_CONTINUOUSLY);
 
-        background = new Background("konoha_background.jpg", 0, 0, width, height);
-        naruto = new GameObject("mini_naruto.png", 10, 140, 100, 140);
-        sasuke = new GameObject("mini_sasuke.png", 450, 190, 100, 140);
-
+        background = new Background("background.png", 0, 0, width, height);
+        player = new GameObject("small-mario.png", 10, 140, 60, 60);
         life = new GameObject("heart-icon.png", 0, 23, 25, 25);
-        sasuke.setSpeedX(2);
-        sasuke.setSpeedY(1);
-        sasuke.setSpeedRate(2);
+        ball = new GameObject(Color.BLUE, 450, 190, 10, 10);
+        ball.setSpeedX(5);
+        ball.setSpeedY(5);
+        ball.setSpeedRate(2);
+        ball.setSize(10);
         Thread thread = new Thread(this);
         thread.start();
     }
@@ -95,19 +92,19 @@ public class Main extends JPanel implements Runnable, KeyListener {
     }
 
     public void updateGame() {
-        sasukeCollisions();
-        narutosasukeCollisions();
+        ballCollisions();
+        playerBallCollisions();
         movimentation();
         touchWall();
-        narutoColision();
+        playerColision();
         GameOver();
     }
 
-    public void narutoColision() {
-        if (naruto.getYPosition() <= 0)
-            naruto.setYPosition(0);
-        else if (naruto.getYPosition() >= 380)
-            naruto.setYPosition(380);
+    public void playerColision() {
+        if (player.getYPosition() <= 0)
+            player.setYPosition(0);
+        else if (player.getYPosition() >= 380)
+            player.setYPosition(380);
     }
 
     public void GameOver() {
@@ -155,23 +152,23 @@ public class Main extends JPanel implements Runnable, KeyListener {
         mainMusicClip.loop(Clip.LOOP_CONTINUOUSLY);
         lives = initialLives;
         score = 0;
-        sasuke.setXPosition(450);
-        sasuke.setYPosition(190);
-        sasuke.setSpeedX(5);
-        sasuke.setSpeedY(5);
-        sasuke.setSpeedRate(2);
-        naruto.setXPosition(50);
-        naruto.setYPosition(140);
-        naruto.setSpeed(3);
-        naruto.setMovingUp(false);
-        naruto.setMovingDown(false);
+        ball.setXPosition(450);
+        ball.setYPosition(190);
+        ball.setSpeedX(5);
+        ball.setSpeedY(5);
+        ball.setSpeedRate(2);
+        player.setXPosition(50);
+        player.setYPosition(140);
+        player.setSpeed(3);
+        player.setMovingUp(false);
+        player.setMovingDown(false);
     }
 
     public void touchWall() {
-        if (sasuke.getXPosition() <= 0) {
+        if (ball.getXPosition() <= 0) {
             lives -= 1;
-            sasuke.setYPosition(randomNumber.nextInt(400) + 30);
-            sasuke.setXPosition(randomNumber.nextInt(250) + 200);
+            ball.setYPosition(randomNumber.nextInt(400) + 30);
+            ball.setXPosition(randomNumber.nextInt(250) + 200);
             try {
                 playSound("missedSound.wav");
             } catch (Exception e) {
@@ -190,24 +187,24 @@ public class Main extends JPanel implements Runnable, KeyListener {
     }
 
     public void movimentation() {
-        if (naruto.isMovingUp()) {
-            naruto.setYPosition(naruto.getYPosition() - naruto.getSpeed());
+        if (player.isMovingUp()) {
+            player.setYPosition(player.getYPosition() - player.getSpeed());
         }
-        if (naruto.isMovingDown()) {
-            naruto.setYPosition(naruto.getYPosition() + naruto.getSpeed());
+        if (player.isMovingDown()) {
+            player.setYPosition(player.getYPosition() + player.getSpeed());
         }
     }
 
-    public void narutosasukeCollisions() {
-        if (sasuke.getXPosition() <= naruto.getXPosition() + naruto.getWidth()) {
-            if (sasuke.getYPosition() >= naruto.getYPosition()
-                    && sasuke.getYPosition() <= naruto.getYPosition() + naruto.getHeight()) {
+    public void playerBallCollisions() {
+        if (ball.getXPosition() <= player.getXPosition() + player.getWidth()) {
+            if (ball.getYPosition() >= player.getYPosition()
+                    && ball.getYPosition() <= player.getYPosition() + player.getHeight()) {
                 if (bestScore < score)
                     bestScore = score;
-                sasuke.setSpeedX(sasuke.getSpeedX() * -1);
-                sasuke.setSpeedY(sasuke.getSpeedY() * -1);
+                ball.setSpeedX(ball.getSpeedX() * -1);
+                ball.setSpeedY(ball.getSpeedY() * -1);
                 try {
-                    playSound("sasuke-screaming.wav");
+                    playSound("hitBallSound.wav");
                 } catch (IOException e) {
                     // TODO Auto-generated catch block
                     e.printStackTrace();
@@ -216,49 +213,49 @@ public class Main extends JPanel implements Runnable, KeyListener {
                     e.printStackTrace();
                 }
                 score++;
-                naruto.setSpeed(naruto.getSpeed() + naruto.getSpeedRate());
+                player.setSpeed(player.getSpeed() + player.getSpeedRate());
                 if (score % 4 == 0) {
-                    if (sasuke.getSpeedY() <= 0)
-                        sasuke.setSpeedY(sasuke.getSpeedY() - sasuke.getSpeedRate());
+                    if (ball.getSpeedY() <= 0)
+                        ball.setSpeedY(ball.getSpeedY() - ball.getSpeedRate());
                     else
-                        sasuke.setSpeedY(sasuke.getSpeedY() + sasuke.getSpeedRate());
-                    if (sasuke.getSpeedX() <= 0)
-                        sasuke.setSpeedX(sasuke.getSpeedX() - sasuke.getSpeedRate());
+                        ball.setSpeedY(ball.getSpeedY() + ball.getSpeedRate());
+                    if (ball.getSpeedX() <= 0)
+                        ball.setSpeedX(ball.getSpeedX() - ball.getSpeedRate());
                     else
-                        sasuke.setSpeedX(sasuke.getSpeedX() + sasuke.getSpeedRate());
+                        ball.setSpeedX(ball.getSpeedX() + ball.getSpeedRate());
                 }
             }
         }
     }
 
-    public void sasukeCollisions() {
+    public void ballCollisions() {
  
-        sasuke.setXPosition(sasuke.getXPosition() + sasuke.getSpeedX());
-        sasuke.setYPosition(sasuke.getYPosition() + sasuke.getSpeedY());
-        if (sasuke.getXPosition() >= width - 25 || sasuke.getXPosition() <= 0) {
-            sasuke.setSpeedX(sasuke.getSpeedX() * -1);
+        ball.setXPosition(ball.getXPosition() + ball.getSpeedX());
+        ball.setYPosition(ball.getYPosition() + ball.getSpeedY());
+        if (ball.getXPosition() >= width - 25 || ball.getXPosition() <= 0) {
+            ball.setSpeedX(ball.getSpeedX() * -1);
             // playHitWallSound();
         }
-        if (sasuke.getYPosition() >= height - 50 || sasuke.getYPosition() <= 0) {
-            sasuke.setSpeedY(sasuke.getSpeedY() * -1);
+        if (ball.getYPosition() >= height - 50 || ball.getYPosition() <= 0) {
+            ball.setSpeedY(ball.getSpeedY() * -1);
             // playHitWallSound();
 
         }
-        if (sasuke.getSpeedX() < 0){
-            sasuke.setSpeedAbsoluteX(-sasuke.getSpeedX());
+        if (ball.getSpeedX() < 0){
+            ball.setSpeedAbsoluteX(-ball.getSpeedX());
             // playHitWallSound();
         }
             
         else{
-            sasuke.setSpeedAbsoluteX(sasuke.getSpeedX());
+            ball.setSpeedAbsoluteX(ball.getSpeedX());
             // playHitWallSound();
         }
-        if (sasuke.getSpeedY() < 0){
-            sasuke.setSpeedAbsoluteY(-sasuke.getSpeedY());
+        if (ball.getSpeedY() < 0){
+            ball.setSpeedAbsoluteY(-ball.getSpeedY());
             // playHitWallSound();
         }
         else{
-            sasuke.setSpeedAbsoluteY(sasuke.getSpeedY());
+            ball.setSpeedAbsoluteY(ball.getSpeedY());
             // playHitWallSound();
         }
     }
@@ -292,16 +289,14 @@ public class Main extends JPanel implements Runnable, KeyListener {
         }
     }
 
-
-
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
         try {
             background.drawImage(g);
-            naruto.drawImage(g);
+            player.drawImage(g);
             drawLives(g);
             drawScore(g);
-            sasuke.drawImage(g);
+            ball.drawOval(g);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -338,26 +333,20 @@ public class Main extends JPanel implements Runnable, KeyListener {
     @Override
     public void keyPressed(KeyEvent e) {
         if (e.getKeyCode() == KeyEvent.VK_UP)
-            naruto.setMovingUp(true);
+            player.setMovingUp(true);
         if (e.getKeyCode() == KeyEvent.VK_DOWN) {
-            naruto.setMovingDown(true);
+            player.setMovingDown(true);
         }
         if (e.getKeyCode() == KeyEvent.VK_SPACE) {
             pause = !pause;
-
-            if(pause){
-                mainMusicClip.stop();
-            }else {
-                mainMusicClip.loop(Clip.LOOP_CONTINUOUSLY);
-            }
         }
     }
 
     @Override
     public void keyReleased(KeyEvent e) {
         if (e.getKeyCode() == KeyEvent.VK_UP)
-            naruto.setMovingUp(false);
+            player.setMovingUp(false);
         if (e.getKeyCode() == KeyEvent.VK_DOWN)
-            naruto.setMovingDown(false);
+            player.setMovingDown(false);
     }
 }
